@@ -1,0 +1,67 @@
+name: wine-platform-5-staging
+version: latest
+version-script: cat $SNAPCRAFT_STAGE/version
+summary: wine platform snap it provides staging WINE 5 for snaps
+description: |
+ This snap creates a WINE staging 5 via content sharing to be used by other snaps that are using WINE.
+
+grade: stable
+confinement: strict
+architectures:
+  - build-on: amd64
+  - build-on: i386
+base: core18
+
+slots:
+  wine-5-staging:
+    interface: content
+    source:
+      read:
+      - $SNAP/opt/wine-staging
+
+parts:
+  wine:
+    plugin: nil
+    build-packages:
+      - dpkg
+      - wget
+    override-build: |
+      snapcraftctl build
+
+      ARCH="$(dpkg --print-architecture)"
+      WINE_VER="5.0.0"
+
+      # set snap version
+      echo "$WINE_VER" > $SNAPCRAFT_STAGE/version
+
+      # wget and dpkg extract the wine debs
+      ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
+      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging_${WINE_VER}~bionic_${ARCH}.deb"
+
+      ## wine loaders - this one is the native system architecture
+      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging-${ARCH}_${WINE_VER}~bionic_${ARCH}.deb"
+
+      if [ "$ARCH" = "amd64" ]; then
+        ## on amd64 builds we need to also bundle the i386 wine loaders
+        DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-i386/wine-staging-i386_${WINE_VER}~bionic_i386.deb"
+      fi
+
+      for DEB_URL in ${DEB_URLS}; do
+        DEB=$(basename "${DEB_URL}")
+        echo "Downloading ${DEB_URL}..."
+        wget --quiet "${DEB_URL}" -O "${SNAPCRAFT_PART_INSTALL}/${DEB}"
+        echo "Unpacking ${DEB}..."
+        dpkg -x "${SNAPCRAFT_PART_INSTALL}/${DEB}" ${SNAPCRAFT_PART_INSTALL}
+        rm -f "${SNAPCRAFT_PART_INSTALL}/${DEB}"
+      done
+
+      # Cleanup
+      rm -rf ${SNAPCRAFT_PART_INSTALL}/opt/wine-staging/share/applications
+      rm -rf ${SNAPCRAFT_PART_INSTALL}/opt/wine-staging/share/man
+      rm -rf ${SNAPCRAFT_PART_INSTALL}/usr
+
+      # Disable winemenubuilder
+      sed -i 's/winemenubuilder.exe -a -r/winemenubuilder.exe -r/g' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
+
+      # add nlpfile
+      touch "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/bin/nlpfile
