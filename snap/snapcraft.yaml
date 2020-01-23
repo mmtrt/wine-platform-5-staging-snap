@@ -30,20 +30,21 @@ parts:
 
       ARCH="$(dpkg --print-architecture)"
       WINE_VER="5.0.0"
+      REL="1"
 
       # set snap version
       echo "$WINE_VER" > $SNAPCRAFT_STAGE/version
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
-      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging_${WINE_VER}~bionic_${ARCH}.deb"
+      DEB_URLS="https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-${ARCH}_${WINE_VER}-${REL}~bionic1_${ARCH}.deb"
 
       ## wine loaders - this one is the native system architecture
-      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging-${ARCH}_${WINE_VER}~bionic_${ARCH}.deb"
+      DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging_${WINE_VER}-${REL}~bionic1_${ARCH}.deb"
 
       if [ "$ARCH" = "amd64" ]; then
         ## on amd64 builds we need to also bundle the i386 wine loaders
-        DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-i386/wine-staging-i386_${WINE_VER}~bionic_i386.deb"
+        DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-i386_${WINE_VER}-${REL}~bionic1_i386.deb"
       fi
 
       for DEB_URL in ${DEB_URLS}; do
@@ -62,6 +63,3 @@ parts:
 
       # Disable winemenubuilder
       sed -i 's/winemenubuilder.exe -a -r/winemenubuilder.exe -r/g' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
-
-      # add nlpfile
-      touch "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/bin/nlpfile
