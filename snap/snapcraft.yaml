@@ -9,8 +9,7 @@ grade: stable
 confinement: strict
 architectures:
   - build-on: amd64
-  - build-on: i386
-base: core18
+base: core20
 
 slots:
   wine-5-staging:
@@ -29,22 +28,22 @@ parts:
       snapcraftctl build
 
       ARCH="$(dpkg --print-architecture)"
-      WINE_VER="5.0.0"
-      REL="1"
+      WINE_VER="5.6"
+      REL="f"
 
       # set snap version
       echo "$WINE_VER" > $SNAPCRAFT_STAGE/version
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
-      DEB_URLS="https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-${ARCH}_${WINE_VER}-${REL}~bionic1_${ARCH}.deb"
+      DEB_URLS="https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-${ARCH}_${WINE_VER}-${REL}~0ubuntu1_${ARCH}.deb"
 
       ## wine loaders - this one is the native system architecture
-      DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging_${WINE_VER}-${REL}~bionic1_${ARCH}.deb"
+      DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging_${WINE_VER}-${REL}~0ubuntu1_${ARCH}.deb"
 
       if [ "$ARCH" = "amd64" ]; then
         ## on amd64 builds we need to also bundle the i386 wine loaders
-        DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-i386_${WINE_VER}-${REL}~bionic1_i386.deb"
+        DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-i386_${WINE_VER}-${REL}~0ubuntu1_i386.deb"
       fi
 
       for DEB_URL in ${DEB_URLS}; do
