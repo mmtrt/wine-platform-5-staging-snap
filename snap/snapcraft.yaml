@@ -1,6 +1,5 @@
 name: wine-platform-5-staging
-version: latest
-version-script: cat $SNAPCRAFT_STAGE/version
+adopt-info: wine
 summary: wine platform snap it provides staging WINE 5 for snaps
 description: |
  This snap creates a WINE staging 5 via content sharing to be used by other snaps that are using WINE.
@@ -29,10 +28,10 @@ parts:
       snapcraftctl build
 
       ARCH="$(dpkg --print-architecture)"
-      WINE_VER="5.6"
+      WINE_VER="$(wget -qO- https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-amd64/ | grep wine-staging | sed 's|_| |g;s|~| |g' | awk '{print $5}' | tail -n1)"
 
       # set snap version
-      echo "$WINE_VER" > $SNAPCRAFT_STAGE/version
+      snapcraftctl set-version "$WINE_VER"
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
