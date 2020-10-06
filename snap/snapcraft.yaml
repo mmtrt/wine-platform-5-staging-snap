@@ -27,6 +27,10 @@ parts:
     override-build: |
       snapcraftctl build
 
+      # Include libfaudio for ubuntu 18.04 compatability
+      DEB_URLS="https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/amd64/libfaudio0_19.07-0~bionic_amd64.deb"
+      DEB_URLS="$DEB_URLS https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/i386/libfaudio0_19.07-0~bionic_i386.deb"
+
       ARCH="$(dpkg --print-architecture)"
       WINE_VER="$(wget -qO- https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-amd64/ | grep wine-staging | sed 's|_| |g;s|~| |g' | awk '{print $5}' | tail -n1)"
 
@@ -35,7 +39,7 @@ parts:
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
-      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging_${WINE_VER}~bionic_${ARCH}.deb"
+      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging_${WINE_VER}~bionic_${ARCH}.deb"
 
       ## wine loaders - this one is the native system architecture
       DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/wine-staging-${ARCH}_${WINE_VER}~bionic_${ARCH}.deb"
