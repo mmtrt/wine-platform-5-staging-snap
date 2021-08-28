@@ -31,7 +31,7 @@ parts:
       ARCH="$(dpkg --print-architecture)"
       WINE_VER="5.18"
       REL="f"
-      REV="2"
+      REV="3"
 
       # set snap version
       echo "$WINE_VER" > $SNAPCRAFT_STAGE/version
