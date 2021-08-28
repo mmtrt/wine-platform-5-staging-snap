@@ -29,22 +29,23 @@ parts:
       snapcraftctl build
 
       ARCH="$(dpkg --print-architecture)"
-      WINE_VER="5.6"
+      WINE_VER="5.18"
       REL="f"
+      REV="2"
 
       # set snap version
       echo "$WINE_VER" > $SNAPCRAFT_STAGE/version
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
-      DEB_URLS="https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-${ARCH}_${WINE_VER}-${REL}~0ubuntu1_${ARCH}.deb"
+      DEB_URLS="https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-${ARCH}_${WINE_VER}-${REL}~0ubuntu${REV}_${ARCH}.deb"
 
       ## wine loaders - this one is the native system architecture
-      DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging_${WINE_VER}-${REL}~0ubuntu1_${ARCH}.deb"
+      DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging_${WINE_VER}-${REL}~0ubuntu${REV}_${ARCH}.deb"
 
       if [ "$ARCH" = "amd64" ]; then
         ## on amd64 builds we need to also bundle the i386 wine loaders
-        DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-i386_${WINE_VER}-${REL}~0ubuntu1_i386.deb"
+        DEB_URLS="$DEB_URLS https://launchpad.net/~mmtrt/+archive/ubuntu/testing/+files/wine-staging-i386_${WINE_VER}-${REL}~0ubuntu${REV}_i386.deb"
       fi
 
       for DEB_URL in ${DEB_URLS}; do
@@ -61,5 +62,9 @@ parts:
       rm -rf ${SNAPCRAFT_PART_INSTALL}/opt/wine-staging/share/man
       rm -rf ${SNAPCRAFT_PART_INSTALL}/usr
 
+      # Disable FileOpenAssociations
+      sed -i 's|    LicenseInformation|    LicenseInformation,\\\n    FileOpenAssociations|g;$a \\n[FileOpenAssociations]\nHKCU,Software\\Wine\\FileOpenAssociations,"Enable",,"N"' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
+
       # Disable winemenubuilder
-      sed -i 's/winemenubuilder.exe -a -r/winemenubuilder.exe -r/g' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
+      sed -i 's|    FileOpenAssociations|    FileOpenAssociations,\\\n    DllOverrides|;$a \\n[DllOverrides]\nHKCU,Software\\Wine\\DllOverrides,"*winemenubuilder.exe",,""' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
+      sed -i '/\%11\%\\winemenubuilder.exe -a -r/d' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
