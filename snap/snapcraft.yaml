@@ -61,6 +61,9 @@ parts:
       rm -rf ${SNAPCRAFT_PART_INSTALL}/opt/wine-staging/share/applications
       rm -rf ${SNAPCRAFT_PART_INSTALL}/opt/wine-staging/share/man
       rm -rf ${SNAPCRAFT_PART_INSTALL}/usr
+      
+      # Remove dll runtime overrides
+      sed -i '/;;Likely/,+26d' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
 
       # Disable FileOpenAssociations
       sed -i 's|    LicenseInformation|    LicenseInformation,\\\n    FileOpenAssociations|g;$a \\n[FileOpenAssociations]\nHKCU,Software\\Wine\\FileOpenAssociations,"Enable",,"N"' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
