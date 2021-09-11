@@ -67,3 +67,7 @@ parts:
 
       # Disable FileOpenAssociations
       sed -i 's|    LicenseInformation|    LicenseInformation,\\\n    FileOpenAssociations|g;$a \\n[FileOpenAssociations]\nHKCU,Software\\Wine\\FileOpenAssociations,"Enable",,"N"' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
+
+      # Disable winemenubuilder
+      sed -i 's|    FileOpenAssociations|    FileOpenAssociations,\\\n    DllOverrides|;$a \\n[DllOverrides]\nHKCU,Software\\Wine\\DllOverrides,"*winemenubuilder.exe",,""' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
+      sed -i '/\%11\%\\winemenubuilder.exe -a -r/d' "${SNAPCRAFT_PART_INSTALL}"/opt/wine-staging/share/wine/wine.inf
